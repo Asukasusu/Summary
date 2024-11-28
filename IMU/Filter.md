@@ -10,17 +10,15 @@
 
 - 3轴加速度计
 
-  加速度计，测量的是**$XYZ$**轴收到的加速度。在静止时，测量的时重力加速度，因此物体倾斜时根据重力的分力可以粗略计算角度。在运动时，除了重力加速度，还叠加了运动产生的加速度。
+  加速度计，测量的是**$XYZ$**轴收到的加速度。在静止时，测量的是重力加速度，因此物体倾斜时根据重力的分力可以粗略计算角度。在运动时，除了重力加速度，还叠加了运动产生的加速度。
   
   **满足符合右手螺旋定则**
 
   ![](./image/MPU6050.png)
 
   **三轴定义如图示**
-
-
-
-
+  
+  
 
 ### 姿态定义
 
@@ -240,7 +238,7 @@ p' = qp{q^{ - 1}} = {\left[ {\begin{array}{*{20}{c}}
 $$
 其中${p'}$表示绕旋转轴${v}$旋转$\theta$角度后得到的新向量在**原三维空间的坐标表示**
 
-###### 四元数表示坐标系旋转
+###### **四元数表示坐标系旋转**
 
 定义向量$v_0$在$oxyz$坐标系中的表示为$\left[ {\begin{array}{*{20}{c}}
 {{v_x}}&{{v_y}}&{{v_z}}\end{array}} \right]^T$，令坐标系$oxyz$绕单位旋转轴${v}$旋转$\theta$角度，得到新坐标系$o'x'y'z'$，此时$v_0$在新坐标系中表示为$\left[ {\begin{array}{*{20}{c}}{{v'_x}}&{{v'_y}}&{{v'_z}}\end{array}} \right]^T$。转化关系为
@@ -359,16 +357,16 @@ $$
 连续两次的旋转可以表示为$q\left( {t + \Delta t} \right) = \Delta q \cdot q$，则有
 $$
 \begin{array}{l}
-q\left( {t + \Delta t} \right) - q\left( t \right)& = &\left( {\cos \frac{{\left\| \omega  \right\|\Delta t}}{2} + \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}\hat \omega } \right)q\left( t \right) - q\left( t \right)\\
+q\left( {t + \Delta t} \right) - q\left( t \right)& = &\left( {\cos \frac{{\left\| \omega  \right\|\Delta t}}{2} + \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}\hat \omega } \right)q\left( t \right) - q\left( t \right)\\[2mm]
 & = &\left( { - 2{{\sin }^2}\frac{{\left\| \omega  \right\|\Delta t}}{2} + \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}\hat \omega } \right)q\left( t \right)
 \end{array}
 $$
 省略高阶项可得
 $$
-&q\left( {t + \Delta t} \right) - q\left( t \right) = \hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}q\left( t \right)\\
+&q\left( {t + \Delta t} \right) - q\left( t \right) = \hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}q\left( t \right)\\[2mm]
 &\begin{array}{l}
-\dot q\left( t \right) &=& \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{q\left( {t + \Delta t} \right) - q\left( t \right)}}{{\Delta t}} = \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{\hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}}}{{\Delta t}}q\left( t \right)\\
- &=& \frac{1}{2}\hat \omega \left\| \omega  \right\|q\left( t \right)\\
+\dot q\left( t \right) &=& \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{q\left( {t + \Delta t} \right) - q\left( t \right)}}{{\Delta t}} = \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{\hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}}}{{\Delta t}}q\left( t \right)\\[2mm]
+ &=& \frac{1}{2}\hat \omega \left\| \omega  \right\|q\left( t \right)\\[2mm]
  &=& \frac{1}{2}\omega q\left( t \right)
 \end{array}
 $$
@@ -454,15 +452,49 @@ $$
 
 
 
-
-
 ## 滤波算法
 
-### Mahony互补滤波
+### Mahony滤波
 
 **陀螺仪**解算得到的姿态具有良好的**高频特性**，但是会随着时间漂移，而**加速度计**解算得到姿态具有良好的**低频特性**，不会随着时间漂移，但是载体剧烈运动时，不能解算出真实的姿态。这时可以将陀螺仪的高频特性和加速度计的低频特性相融合，得到高频、低频特性都很好的算法。
 
 <img src="./image/Mahony.png" alt="Mahony" style="zoom:100% "/>
+
+#### 传函分析
+
+使用$PI$控制算法进行误差补偿，其中$PI$控制器可以看作一个**低通滤波器**，它用于整合加速度计的低频信息并与陀螺仪数据互补，从而实现互补滤波效果。传递函数如下
+
+$$
+\large
+\begin{array}{l}
+q(s) &=& \frac{{a(s)G(s) + \omega (s)}}{{s + G(s)}}\\[2mm]
+ &=& \frac{{G(s)}}{{s + G(s)}}a(s) + \frac{s}{{s + G(s)}}\frac{{\omega (s)}}{s}
+\end{array}
+$$
+
+$$
+\normalsize
+q(s) = G'(s)a(s) + (1 - G'(s))\frac{{\omega (s)}}{s}
+$$
+
+$q$最终由$a$的低频和$\frac{\omega}{s}$的高频组成。反映了互补滤波的实质；陀螺仪积分的高频量互补加速度的低频量，最终角度在短时间内的输出主要取决于陀螺仪积分，而长时间的输出取决于加速度测量角，这样既保证了角度的精度，又保证了角度长时间的稳定性。
+
+若原式中$G$是一个常数，那么$q$的表达式为
+$$
+q(s) = \frac{{{K_p}}}{{s + {K_p}}}a(s) + \frac{s}{{s + {K_p}}}\frac{{\omega (s)}}{s}
+$$
+
+其$bode$图如下
+
+<img src="./image/P_bode.png" alt="PI_bode" style="zoom:60% "/>
+
+若原式中$G$是$PI$控制器，那么$q$的表达式为
+$$
+q(s) = \frac{{{K_p}s + {K_i}}}{{{s^2} + {K_p}s + {K_i}}}a(s) + \frac{{{s^2}}}{{{s^2} + {K_p}s + {K_i}}}\frac{{\omega (s)}}{s}
+$$
+其$bode$图如下
+
+<img src="./image/PI_bode.png" alt="PI_bode" style="zoom:60% "/>
 
 #### 误差定义
 
@@ -479,7 +511,7 @@ $$
 \left| {a \times b} \right| = \sin \theta  \approx \theta
 $$
 
-#####  加速度归一化向量
+####  加速度归一化向量
 
 对加速度计的测量值进行归一化
 $$
@@ -494,7 +526,7 @@ a' = \left[ {\begin{array}{*{20}{c}}
 \end{array}} \right]
 $$
 
-##### 当前姿态估计重力方向向量
+#### 当前姿态估计重力方向向量
 
 当载体处于静止状态时，加速度计输出恒为$\left[ {\begin{array}{*{20}{c}}0\\0\\g\end{array}} \right]$。如果带入四元数形式的旋转矩阵，则有
 
@@ -538,7 +570,7 @@ $$
 
 
 
-##### 向量叉积得到误差
+#### 向量叉积得到误差
 
 $$
 e = a' \times v = \left[ {\begin{array}{*{20}{c}}
@@ -554,50 +586,157 @@ $$
 
 ##### 误差补偿
 
-使用$PI$控制算法进行误差补偿，其中$PI$控制器可以看作一个**低通滤波器**，它用于整合加速度计的低频信息并与陀螺仪数据互补，从而实现互补滤波效果。其闭环传递函数$Bode$图如下所示
-
-<img src="./image/PI_bode.png" alt="PI_bode" style="zoom:100% "/>
-
 角速度的测量偏差补偿量，如下
 $$
 {\omega _{bias}} = {K_p} \cdot e + {K_i} \cdot \int e
 $$
 其中$K_p$为比例系数，$K_i$为积分系数。$K_p$可以表示为对加速度计的信任程度，越大越信任加速度计的测量值，反之$K_p$越小则信任陀螺仪的数据。$K_i$用于消除静态误差，也就是消除陀螺仪的零偏。
 
-##### 姿态更新
+#### 姿态更新
 
 根据修正后的角速度值，结合前文得到的四元数微分方程对姿态进行递推即可得到融合后的姿态
 $$
 \dot q = \frac{1}{2}(\omega + \omega_{bias})q
 $$
 
-##### 校准后调用
+#### 校准后调用
 
 在调用Mahony解算程序前，需要先对陀螺仪和加速度计零偏进行估计；需要将IMU静止一段时间，获取这段时间的**均值**即为零偏估计值，在使用中减去零偏。
 
-##### Mahony算法优缺点
+#### Mahony算法优缺点
 
-###### 优点
+##### 优点
 
 - 计算复杂程度低
 - 对静态误差的自适应能力强，能够准确地估计姿态
 - PI控制参数好调整
 
-###### 缺点
+##### 缺点
 
 - 动态情况下，该算法的性能可能会受到影响。此时加速度计的数据不仅仅代表重力加速度，这时会导致估计误差的增加
 
 
 
+### Madgwick滤波
+
+Madgwick算法假设加速度计测量的加速度完全由重力提供，即物体本体运动产生的加速度可忽略不计。
+
+<img src="./image/Madgwick.png" alt="Mahony" style="zoom:40% "/>
+
+Madgwick算法的本质是加权整合$t$时刻陀螺仪算出的姿态${}_E^S{q_{\omega ,t}}$和加速计磁场计共同算出的姿态${}_E^S{q_{\nabla ,t}}$，（$E(earth)$表示世界坐标系$S(sensor)$表示传感器坐标系），从而得到最终的姿态。
+#### 角速度估计
+
+通过角速度提供的数据，可以得到角速度下的四元数以下标$\omega$表示
+$$
+\large{{\dot q}_{\omega ,t}} = \frac{1}{2}{\omega _t}{{\hat q}_{est,t - 1}}\\[2mm]
+%{}_E^S{q_{\omega ,t}} = {}_E^S{{\hat q}_{est,t - 1}} + {}_E^S{{\dot q}_{\omega ,t}}\Delta t
+$$
+对四元数进一步区分，将上一时刻滤波后的姿态四元数记为${{\hat q}_{est,t - 1}}$，现在已知$t-1$时刻的四元数${{\hat q}_{est,t - 1}}$和角速度${{\omega}_{t - 1}}$，以及$t$时刻的角速度${{\omega}_{t}}$，系统采样间隔为$\Delta t$，求$t$时刻的四元数，使用改进的欧拉公式。
+$$
+\begin{gather*}
+{q_{\omega ,t}} = {{\hat q}_{est,t - 1}} + ({K_1} + {K_2})\frac{{\Delta t}}{2}\\[2mm]
+{K_1} = \frac{1}{2}{\omega _{t - 1}}{{\hat q}_{est,t - 1}}\\[2mm]
+{K_2} = \frac{1}{2}{\omega _t}({{\hat q}_{est,t - 1}} + \Delta t{K_1})
+\end{gather*}
+$$
+在实际中，受传感器特性的影响，陀螺仪、加速度计、磁场计的最大采样速度不一样。系统采样间隔$\Delta t$是为了满足这三个传感器中最低的采样速度，使其能同时采样。实际上陀螺仪的采样速度可以比另外两给传感器的速度快很多。所以如果为最求更高精度，可以分开采样。假设陀螺仪的采样间隔是$\Delta t_\omega$，则可以用$\Delta t_\omega$代替上式中的$\Delta t$，用欧拉公式一步一步地往后算，重复$n$次，直到$n\Delta t_\omega = \Delta t$，就得到了高精度下一个系统采样时刻的四元数，并且这个四元数与另外两个传感器同步。
+
+#### 加速度计估计
+
+假设在世界坐标系下一个向量表示为$d = {\left[ {\begin{array}{*{20}{c}}0&{{d_x}}&{{d_y}}&{{d_z}}\end{array}} \right]^T}$，在传感器下的观测值为$s = {\left[ {\begin{array}{*{20}{c}}0&{{s_x}}&{{s_y}}&{{s_z}}\end{array}} \right]^T}$。若此时姿态是准确的，在单位四元数下则有
+$$
+\large
+s = q_{_{est,t}}^{ - 1} \otimes d \otimes {q_{_{est,t}}}
+$$
+
+然而由于姿态不准确，等式并不成立。因此，定义目标函数
+$$
+f\left( {{\hat q}_{est,t},{\hat d},{\hat s}} \right) = {\hat q}_{est,t}^{ - 1} \otimes {\hat d} \otimes {{\hat q}_{est,t}} - {{\hat s}}
+$$
+令目标函数取到0（在四元数对应的参数空间上），取到最优的姿态$q_{optimal}$，即$q_{optimal}=\mathop {\min }\limits_{{q}} f\left( {d,q,s} \right)$，此处使用**梯度下降法**求解这个优化问题，记$f$的梯度为$\nabla f$，那么在**迭代优化**求解时，下一次取值应该为当前取值减去当前梯度方向走一个步长$\mu$，即
+$$
+\large
+{q_{est,k+1}} = {{\hat q}_{est,k}} - \mu \frac{{\nabla f\left( {{{\hat q}_{est,k}},{{\hat d}_{k}},{{\hat s}_{k}}} \right)}}{{\left\| {f\left( {{{\hat q}_{est,k}},{{\hat d}_{k}},{{\hat s}_{k}}} \right)} \right\|}}
+$$
+
+$$
+f\left( {{{\hat q}_{est,k}},{{\hat d}_{k}},{{\hat s}_{k}}} \right) &=& \left[ {\begin{array}{*{20}{c}}
+0\\
+{2{d_x}(\frac{1}{2} - q_2^2 - q_3^2) + 2{d_y}({q_0}{q_3} + {q_1}{q_2}) + 2{d_z}({q_1}{q_3} - {q_0}{q_2}) - {s_x}}\\
+{2{d_x}({q_1}{q_2} - {q_0}{q_3}) + 2{d_y}(\frac{1}{2} - q_1^2 - q_3^2) + 2{d_z}({q_0}{q_1} + {q_2}{q_3}) - {s_y}}\\
+{2{d_x}({q_0}{q_2} + {q_1}{q_3}) + 2{d_y}({q_2}{q_3} - {q_0}{q_1}) + 2{d_z}(\frac{1}{2} - q_1^2 - q_2^2) - {s_z}}
+\end{array}} \right]\\[2mm]
+&=& \left[ {\begin{array}{*{20}{c}}
+{2{d_x}(\frac{1}{2} - q_2^2 - q_3^2) + 2{d_y}({q_0}{q_3} + {q_1}{q_2}) + 2{d_z}({q_1}{q_3} - {q_0}{q_2}) - {s_x}}\\
+{2{d_x}({q_1}{q_2} - {q_0}{q_3}) + 2{d_y}(\frac{1}{2} - q_1^2 - q_3^2) + 2{d_z}({q_0}{q_1} + {q_2}{q_3}) - {s_y}}\\
+{2{d_x}({q_0}{q_2} + {q_1}{q_3}) + 2{d_y}({q_2}{q_3} - {q_0}{q_1}) + 2{d_z}(\frac{1}{2} - q_1^2 - q_2^2) - {s_z}}
+\end{array}} \right]
+$$
+
+目标函数的雅可比矩阵表示为
+$$
+J\left( {{\hat q}_{est,t - 1}},{{\hat d}_{t}} \right) = \frac{{\partial f\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}},{{\hat s}_{t}}} \right)}}{{\partial {\hat q}^T_{est,t - 1}}} = \left[ {\begin{array}{*{20}{c}}
+{\begin{array}{*{20}{c}}
+{\frac{{\partial {f_1}}}{{\partial {q_0}}}}&{\frac{{\partial {f_1}}}{{\partial {q_1}}}}&{\frac{{\partial {f_1}}}{{\partial {q_2}}}}&{\frac{{\partial {f_1}}}{{\partial {q_3}}}}
+\end{array}}\\
+ \vdots \\
+{\begin{array}{*{20}{c}}
+{\frac{{\partial {f_3}}}{{\partial {q_0}}}}&{\frac{{\partial {f_3}}}{{\partial {q_1}}}}&{\frac{{\partial {f_3}}}{{\partial {q_2}}}}&{\frac{{\partial {f_3}}}{{\partial {q_3}}}}
+\end{array}}
+\end{array}} \right]\\[2mm]
+= \left[ {\begin{array}{*{20}{c}}
+{2{d_y}{q_3} - 2{d_z}{q_2}}&{2{d_y}{q_2} + 2{d_z}{q_3}}&{ - 4{d_x}{q_2} + 2{d_y}{q_1} - 2{d_z}{q_0}}&{ - 4{d_x}{q_3} + 2{d_y}{q_0} + 2{d_z}{q_1}}\\
+{ - 2{d_x}{q_3} + 2{d_z}{q_1}}&{2{d_x}{q_2} - 4{d_y}{q_1} + 2{d_z}{q_0}}&{2{d_x}{q_1} + 2{d_z}{q_3}}&{ - 2{d_x}{q_0} - 4{d_y}{q_3} + 2{d_z}{q_2}}\\
+{2{d_x}{q_2} - 2{d_y}{q_1}}&{2{d_x}{q_3} - 2{d_y}{q_0} - 4{d_z}{q_1}}&{2{d_x}{q_0} + 2{d_y}{q_3} - 4{d_z}{q_2}}&{2{d_x}{q_1} + 2{d_y}{q_2}}
+\end{array}} \right]
+$$
+其中定义了（详细推到见博客）
+$$
+\nabla f\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}},{{\hat s}_{t}}} \right) = {J^T}\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}}} \right)f\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}},{{\hat s}_{t}}} \right)
+$$
+则最佳估计${\hat q_{t,k}}$表示为
+$$
+{{\hat q}_{t,k}} = {{\hat q}_{t,k - 1}} - {\mu _t}\frac{{\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)}}{{\left\| {\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|}},   {\mu _t} = \alpha \left\| {{{\dot q}_{\omega ,t}}} \right\|\Delta t,\alpha > 1
+$$
+其中$\mu _t$表示为步长，梯度下降法是一个不断迭代的过程。用上一时刻的最优姿态${\hat q}_{est,t - 1}$ 作为初值${\hat q}_{t,0}$，即已知上一次估计，代入上述公式中。重复之前的步骤，直到满足${\left\| {f\left( {{{\hat q}_{t,k}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|^2}-{\left\| {f\left( {{{\hat q}_{t,k-1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|^2} \ge 0$，此时${\hat q}_{t,k - 1}$为${\hat q}_{t}$的最佳估计值。
+
+在实际中，使用一次梯度下降法的迭代工程简化计算量，如下
+$$
+{{q}_{\nabla ,k}} = {{\hat q}_{est,t - 1}} - {\mu _t}\frac{{\nabla f\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}},{{\hat s}_{t}}} \right)}}{{\left\| {\nabla f\left( {{{\hat q}_{est,t - 1}},{{\hat d}_{t}},{{\hat s}_{t}}} \right)} \right\|}}
+$$
+
+#### 融合估计
+
+融合得到最终的姿态。其加权公式如下
+$$
+\begin{gather*}
+    {q_{est,t}} = {\alpha _1}{q_{\omega ,t}} + {\alpha _2}{q_{\nabla ,t}}{\rm{     }}\\[2mm]
+{\alpha _1}{\rm{ + }}{\alpha _2} = 1\\[2mm]
+{\rm{  }}0 \le {\alpha _1} \le 1,0 \le {\alpha _2} \le 1
+\end{gather*}
+$$
+
+其中，$\alpha_{1,2}$是加权系数，由其各自的误差占总体误差的比重所决定的，误差所占比重越小则加权系数越大。设采样时间间隔为$\Delta t$。陀螺仪单位时间的误差$\beta$可以通过手册得到，一般是一个很小的值，所以陀螺仪的误差为$\beta\Delta t$。而加速度计磁场计共同算出的姿态误差由计算方法决定，采用的是梯度下降法，所以其误差为梯度下降法中选取的步长$\mu_t$，步长越长则其计算结果误差越大。则总体误差为$\beta\Delta t+\mu_t$。
+
+$\alpha_1$是陀螺仪算出的姿态加权系数为
+$$
+{\alpha _1} = 1 - \frac{{\beta \Delta t}}{{\beta \Delta t + {\mu _t}}}
+$$
+$\alpha_2$是加速度计磁场计所算出的姿态加权系数为
+$$
+{\alpha _2} = 1 - \frac{{{\mu _t}}}{{\beta \Delta t + {\mu _t}}}
+$$
+
+#### 与Mahony算法的比较
+
+- Madgwick与Mahony算法相比，最大的不同之处就是在于对加速度计估计的误差。Mahony利用叉乘，Madgwick利用优化。
+- Mahony可以看作一个PI控制器，Madgwick是一个P控制器。
+- Madgwick比Mahony的精度稍高一点，但是Mahony的计算速度略快。
+- Mahony和Madgwick都需要假设加速度测的是重力，因此在加速度变化剧烈情况下表现不佳
 
 
 
-
-
-
-
-
-
+### 卡尔曼滤波
 
 
 
@@ -645,16 +784,18 @@ $$
 
 
 
-
-
-[^1]: https://www.zhihu.com/question/23005815/answer/33971127 " 形象理解四元数"
-[^2]: https://zhuanlan.zhihu.com/p/45404840  "三维旋转：欧拉角、四元数、旋转矩阵、轴角之间的转换"
-[^3]: https://www.zhihu.com/tardis/zm/art/78987582?source_id=1005 "四元数和旋转"
-[^4]: https://blog.csdn.net/qq_21542187/article/details/143091092 "四元数更新算法"
-[^5]: https://zhuanlan.zhihu.com/p/438724546 "Mahony姿态解算算法详解"
-[^6]: https://zhuanlan.zhihu.com/p/612448123 "Mahony互补滤波算法及PI参数调节"
-[^7]: https://zhuanlan.zhihu.com/p/654496867 "陀螺仪姿态解算+Mahony滤波算法"
-[^6]: https://zhuanlan.zhihu.com/p/22480177  "采样定理"
-[^7]: https://www.bilibili.com/video/BV1Nr4y1j7kn  "无伤理解欧拉角中的“万向死锁”现象"
-[^8]: https://www.bilibili.com/video/BV14t421h7M4/  "四元数如何控制物体旋转"
-[^9]: 
+[^01]: https://www.zhihu.com/question/23005815/answer/33971127 " 形象理解四元数"
+[^02]: https://zhuanlan.zhihu.com/p/45404840  "三维旋转：欧拉角、四元数、旋转矩阵、轴角之间的转换"
+[^03]: https://www.zhihu.com/tardis/zm/art/78987582?source_id=1005 "四元数和旋转"
+[^04]: https://blog.csdn.net/qq_21542187/article/details/143091092 "四元数更新算法"
+[^05]: https://zhuanlan.zhihu.com/p/438724546 "Mahony姿态解算算法详解"
+[^06]: https://zhuanlan.zhihu.com/p/612448123 "Mahony互补滤波算法及PI参数调节"
+[^07]: https://zhuanlan.zhihu.com/p/654496867 "陀螺仪姿态解算+Mahony滤波算法"
+[^08]: https://zhuanlan.zhihu.com/p/381313233 "为什么Mahony姿态解算中用了PID思想"
+[^08]: https://x-io.co.uk/downloads/madgwick_internal_report.pdf "Madgwick算法论文"
+[^09]: https://www.cnblogs.com/ilekoaiq/p/8849217.html "Madgwick算法详细解读 - 极品巧克力"
+[^10]: https://x-io.co.uk/open-source-imu-and-ahrs-algorithms/ "Open source IMU and AHRS algorithms – x-io Technologies"
+[^11]: https://zhuanlan.zhihu.com/p/22480177  "采样定理"
+[^12]: https://www.bilibili.com/video/BV1Nr4y1j7kn  "无伤理解欧拉角中的“万向死锁”现象"
+[^13]: https://www.bilibili.com/video/BV14t421h7M4/  "四元数如何控制物体旋转"
+[^14]: 
