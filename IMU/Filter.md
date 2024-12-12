@@ -101,7 +101,7 @@ $$
 
 绕三轴旋转矩阵（绕**全局坐标系**下的X轴，再绕Y轴，最后绕Z轴），则三轴旋转矩阵为：
 $$
-M_{ZYX}=\left[ {\begin{array}{*{20}{c}}
+M_{XYZ}=\left[ {\begin{array}{*{20}{c}}
 {\cos (\theta )}&{ - \sin (\theta )}&0\\
 {\sin (\theta )}&{\cos (\theta )}&0\\
 0&0&1
@@ -115,7 +115,7 @@ M_{ZYX}=\left[ {\begin{array}{*{20}{c}}
 0&{\sin (\alpha )}&{\cos (\alpha )}
 \end{array}} \right]\\
 
-M_{ZYX}=\begin{bmatrix} 
+M_{XYZ}=\begin{bmatrix} 
 \cos(\theta) \cos(\beta) & \cos(\theta) \sin(\beta) \sin(\alpha) - \sin(\theta) \cos(\alpha) & \cos(\theta) \sin(\beta) \cos(\alpha) + \sin(\theta) \sin(\alpha) \\ 
 \sin(\theta) \cos(\beta) & \sin(\theta) \sin(\beta) \sin(\alpha) + \cos(\theta) \cos(\alpha) & \sin(\theta) \sin(\beta) \cos(\alpha) - \cos(\theta) \sin(\alpha) \\ 
 -\sin(\beta) & \cos(\beta) \sin(\alpha) & \cos(\beta) \cos(\alpha) 
@@ -352,7 +352,7 @@ $$
 $$
 则这次微小旋转可由如下形式的单位四元数表示
 $$
-\Delta q = \cos \frac{{\Delta \theta }}{2} + \sin \frac{{\Delta \theta }}{2}\hat \omega  = \cos \frac{{\left\| \omega  \right\|\Delta t}}{2} + \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}\hat \omega 
+\Delta q = \cos \frac{{\Delta \theta }}{2} + \sin \frac{{\Delta \theta }}{2}\hat \omega  = \cos \frac{{\left\| \omega  \right\|\Delta t}}{2} + \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}\hat \omega
 $$
 连续两次的旋转可以表示为$q\left( {t + \Delta t} \right) = \Delta q \cdot q$，则有
 $$
@@ -363,9 +363,11 @@ q\left( {t + \Delta t} \right) - q\left( t \right)& = &\left( {\cos \frac{{\left
 $$
 省略高阶项可得
 $$
+\large
 &q\left( {t + \Delta t} \right) - q\left( t \right) = \hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}q\left( t \right)\\[2mm]
 &\begin{array}{l}
 \dot q\left( t \right) &=& \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{q\left( {t + \Delta t} \right) - q\left( t \right)}}{{\Delta t}} = \mathop {\lim }\limits_{\Delta t \to \infty } \frac{{\hat \omega \sin \frac{{\left\| \omega  \right\|\Delta t}}{2}}}{{\Delta t}}q\left( t \right)\\[2mm]
+
  &=& \frac{1}{2}\hat \omega \left\| \omega  \right\|q\left( t \right)\\[2mm]
  &=& \frac{1}{2}\omega q\left( t \right)
 \end{array}
@@ -412,11 +414,16 @@ $$
 
 ##### 重力计算欧拉角
 
+绕三轴旋转矩阵（绕**全局坐标系**下的X轴，再绕Y轴，最后绕Z轴）
 $$
 \left[ {\begin{array}{*{20}{c}}
 {{a_x}}\\
 {{a_y}}\\
 {{a_z}}
+\end{array}} \right] = M_{XYZ}^T \cdot \left[ {\begin{array}{*{20}{c}}
+0\\
+0\\
+g
 \end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
 { - \sin \beta }\\
 {\cos \beta \sin \alpha }\\
@@ -655,7 +662,7 @@ f\left( {{\hat q}_{est,t},{\hat d},{\hat s}} \right) = {\hat q}_{est,t}^{ - 1} \
 $$
 令目标函数取到0（在四元数对应的参数空间上），取到最优的姿态$q_{optimal}$，即$q_{optimal}=\mathop {\min }\limits_{{q}} f\left( {d,q,s} \right)$，此处使用**梯度下降法**求解这个优化问题，记$f$的梯度为$\nabla f$，那么在**迭代优化**求解时，下一次取值应该为当前取值减去当前梯度方向走一个步长$\mu$，即
 $$
-\large
+%\large
 {q_{est,k+1}} = {{\hat q}_{est,k}} - \mu \frac{{\nabla f\left( {{{\hat q}_{est,k}},{{\hat d}_{k}},{{\hat s}_{k}}} \right)}}{{\left\| {f\left( {{{\hat q}_{est,k}},{{\hat d}_{k}},{{\hat s}_{k}}} \right)} \right\|}}
 $$
 
@@ -696,7 +703,7 @@ $$
 $$
 则最佳估计${\hat q_{t,k}}$表示为
 $$
-{{\hat q}_{t,k}} = {{\hat q}_{t,k - 1}} - {\mu _t}\frac{{\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)}}{{\left\| {\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|}},   {\mu _t} = \alpha \left\| {{{\dot q}_{\omega ,t}}} \right\|\Delta t,\alpha > 1
+{{\hat q}_{t,k}} = {{\hat q}_{t,k - 1}} - {\mu _t}\frac{{\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)}}{{\left\| {\nabla f\left( {{{\hat q}_{t,k - 1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|}}\\[2mm]   {\mu _t} = \alpha \left\| {{{\dot q}_{\omega ,t}}} \right\|\Delta t,\alpha > 1
 $$
 其中$\mu _t$表示为步长，梯度下降法是一个不断迭代的过程。用上一时刻的最优姿态${\hat q}_{est,t - 1}$ 作为初值${\hat q}_{t,0}$，即已知上一次估计，代入上述公式中。重复之前的步骤，直到满足${\left\| {f\left( {{{\hat q}_{t,k}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|^2}-{\left\| {f\left( {{{\hat q}_{t,k-1}},{{\hat d}_{t,k - 1}},{{\hat s}_{t,k - 1}}} \right)} \right\|^2} \ge 0$，此时${\hat q}_{t,k - 1}$为${\hat q}_{t}$的最佳估计值。
 
@@ -737,6 +744,218 @@ $$
 
 
 ### 卡尔曼滤波
+
+通过传感器的测量获取物体的状态（如位置、速度或者角度）时，通常会遇到各种问题，比如传感器的误差、噪声等，这些问题会导致我们得到的数据不够准确或者不稳定。而卡尔曼滤波的思想在于，单纯地采用传感器提供的数据，还结合物体的运动规律（模型）来修正。
+
+卡尔曼滤波首先会根据模型，预测下一时刻的状态，然后当传感器测量得到的位置信息时，卡尔曼滤波会将**观测值和预测值**进行比较。如果观测值与预测值相符，那么就相信测量值；如果观测值和预测值有很大的偏差，那么卡尔曼滤波就会调整你的状态估计，使之更接近实际情况。
+
+通过不断地重复这个过程，卡尔曼滤波可以逐渐提高状态的准确度。
+
+#### 基础卡尔曼滤波（KF）
+
+##### 系统模型
+
+假设一阶离散线性系统的模型如下
+$$
+\begin{array}{l}
+{x_k} = A{x_{k - 1}} + B{u_{k - 1}} + {\omega _{k - 1}}\\
+{z_k} = H{x_k} + {v_k}
+\end{array}
+$$
+$\omega_k$是过程噪声，$v_k$是测量噪声，其概率分布符合**正态分布**（高斯分布），即$p(\omega ) \in N(0,Q), p(v) \in N(0,R)$，其中$Q, R$表示为协方差矩阵。方差计算公式为$\sigma _x^2 = E{(x - E(x))^2} = E({x^2}) - {E^2}(x)$，协方差表示为${\mathop{\rm cov}} (x,y) = E(xy) - E(x)E(y)$
+$$
+Q = E\left[ {\omega  \cdot {\omega ^T}} \right] = E\left[ {\begin{array}{*{20}{c}}
+{\left[ {\begin{array}{*{20}{c}}
+{{\omega _1}}\\
+{{\omega _2}}
+\end{array}} \right]}&{\left[ {\begin{array}{*{20}{c}}
+{{\omega _1}}&{{\omega _2}}
+\end{array}} \right]}
+\end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
+{E\omega _1^2}&{E{\omega _1\omega _2}}\\
+{E{\omega _1\omega _2}}&{E\omega _2^2}
+\end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
+{\sigma _{{\omega _1}}^2}&{{\sigma _{{\omega _1}}}{\sigma _{\omega 2}}}\\
+{{\sigma _{{\omega _1}}}{\sigma _{\omega 2}}}&{\sigma _{{\omega _2}}^2}
+\end{array}} \right]
+$$
+
+
+##### 预测方程
+
+对于状态估计算法，定义状态量的三个值：状态预测值$(x_k^ -)$、最优估计值$({{\tilde x}_k})$以及真实值$({x_k})$
+
+**状态预测值**（先验状态估计值）在不考虑噪声的影响，由状态预测方程可得
+$$
+\tilde x_k^ -  = A{{\tilde x}_{k - 1}} + B{u_{k - 1}}
+$$
+**状态最优估计值**（后验状态估计值），融合测量值和状态估计值
+$$
+{{\tilde x}_k} = \tilde x_k^ -  + K({z_k} - H\tilde x_k^ - )
+$$
+通过方程可知，卡尔曼增益 $K \in \left[0, H^{-1}\right]$实际表示状态最优估计过程中的模型预测误差与量测误差的比重。
+$$
+K = Predicted error/(Predicted error + Measurement error)
+$$
+
+##### 状态估计协方差
+
+令
+$$
+\begin{array}{l}
+{e_k^ -}  = {x_k} - \tilde x_k^ - \\[2mm]
+{e_k} = {x_k} - {{\tilde x}_k}\\[2mm]
+{P_k}^ -  = E[{e_k^ -} *{e_k^ -}^T]\\[2mm]
+{P_k} = E[{e_k}*{e_k}^T]
+\end{array}
+$$
+${e_k^ -}$表示为先验状态误差，${e_k}$表示为后验状态误差，${P_k^ -}$表示为真实值与预测值之间的协方差，${P_k}$表示为真实值与最优值之间的协方差。
+
+将$z_k$带入状态最优估计，可得
+$$
+\begin{array}{l}
+{{\tilde x}_k} = \tilde x_k^ -  + K({H}{{\rm{x}}_k}{ +  }{{v}_k} - H\tilde x_k^ - )\\
+{{\tilde x}_k} = \tilde x_k^ -  + K{H}{{x}_k} - KH\tilde x_k^ - {+ }K{{v}_k}
+\end{array}
+$$
+变化后的方程
+$$
+{{\tilde x}_k} - {x_k} = \tilde x_k^ -  - {x_k} + KH({x_k} - \tilde x_k^ - ) + K{v_k}
+$$
+则有
+$$
+{e_k} = (I - KH)e_k^ -  - K{v_k}
+$$
+误差协方差矩阵表示为
+$$
+\begin{array}{l}
+{P_k} &=& E[{e_k}*{e_k}^T]\\[2mm]
+ &=& E(((I - KH){e_k^ -}  - K{v_k})( - {v_k^T}{K^T} + {{e_k^ -} ^T}{(I - KH)^T}))\\[2mm]
+ &=& (I - KH){P_k}^ - {(I - KH)^T} + KR{K^T}\\[2mm]
+ &=& {P_k}^ -  - KH{P_k}^ -  - {P_k}^ - {H^T}{K^T} + K(H{P_k}^ - {H^T} + R){K^T}
+\end{array}
+$$
+
+##### 优化目标
+
+卡尔曼滤波的原则就是使得最优状态估计的协方差$P_k$最小，使其越来越接近真实值。定义目标函数
+$$
+J = \sum\limits_{\min } tr({{P_k}})
+$$
+对卡尔曼增益$K$求偏导，可知
+$$
+\frac{{\partial {P_k}}}{{\partial K}} =  - 2{P_k}^ - {H^T} + 2K(H{P_k}^ - {H^T} + R) = 0
+$$
+卡尔曼增益矩阵$K$在最优估计条件下为
+$$
+K = {P_k}^ - {H^T}{(H{P_k}^ - {H^T} + R)^{ - 1}}
+$$
+带入上式可得
+$$
+{P_k} = (I - KH){P_k}^ -
+$$
+状态估计协方差$P_k^-$
+$$
+\begin{array}{l}
+e_{k + 1}^ -  &=& {x_{k + 1}} - \tilde x_{k + 1}^ -  = (A{x_k} + B{u_k} + {\omega _k}) - (A{{\tilde x}_k} + B{u_k})\\
+&=& A({x_k} - {{\tilde x}_k}) + {\omega _k} = A{e_k} + {\omega _k}
+\end{array}
+$$
+
+$$
+P_{k + 1}^ -  = E[{e_{k + 1}^ -} * {{e_{k + 1}^ -} ^T}] = E[A{e_k}*A{e_k}^T] + E[{\omega _k}*{\omega _k}^T]
+$$
+
+$$
+P_{k + 1}^ -  = A{P_k}{A^T} + Q
+$$
+
+##### 总结
+
+先验    估计：$\tilde x_k^ -  = A{{\tilde x}_{k - 1}} + B{u_{k - 1}}$
+
+先验协方差：$P_{k + 1}^ -  = A{P_k}{A^T} + Q, P_0 initial$
+
+
+
+卡尔曼增益：$K = {P_k}^ - {H^T}{(H{P_k}^ - {H^T} + R)^{ - 1}}$
+
+后验    估计：${{\tilde x}_k} = \tilde x_k^ -  + K({z_k} - H\tilde x_k^ - )$
+
+状态    更新：${P_k} = (I - KH){P_k}^ -$
+
+
+
+#### 扩展卡尔曼滤波（EKF）
+
+##### 系统模型
+
+$$
+\begin{array}{l}
+{x_k} = f({x_{k - 1}},{u_{k - 1}},{\omega _{k - 1}}),&P(\omega ) \sim N(0,Q)\\
+{z_k} = h({x_k},{v_k}),&P(v) \sim N(0,R)
+\end{array}
+$$
+
+假设噪声符合正态分布，正态分布的随机变量通过非线性系统后就不再是正态分布的
+
+##### 线性化
+
+向量函数的泰勒展开，假设存在函数$H(x,u)$是$n\times1$的向量函数，其在点$(x_0,u_0)$处的泰勒展开为
+$$
+H(x,u) = H({x_0},{u_0}) + \frac{{\partial H}}{{\partial {x^T}}}\delta x + \frac{{\partial H}}{{\partial {u^T}}}\delta u + \frac{1}{2}{[\begin{array}{*{20}{c}}
+{\delta x}&{\delta u}
+\end{array}]^T}[\begin{array}{*{20}{c}}
+{\frac{{{\partial ^2}H}}{{\partial {x^2}}}}&{\frac{{{\partial ^2}H}}{{\partial x\partial u}}}\\
+{\frac{{{\partial ^2}H}}{{\partial u\partial x}}}&{\frac{{{\partial ^2}H}}{{\partial {u^2}}}}
+\end{array}][\begin{array}{*{20}{c}}
+{\delta x}\\
+{\delta u}
+\end{array}] + o(\delta )
+$$
+因为实际系统存在误差，无法在真实值处线性化，故在$k-1$时刻取后验估计值$\tilde{x}_{k-1}$处对$f({x_{k}})$线性化
+$$
+\begin{array}{l}
+{{x}_k} \approx f({{\tilde x}_{k - 1}},{u_{k - 1}},0) + A({x_k} - {{\tilde x}_{k - 1}}) + {W_k}{\omega _{k - 1}}\\[2mm]
+A = \frac{{\partial f}}{{\partial x}}\left| {_{{{\tilde x}_{k - 1}},{u_{k - 1}}}} \right.,{W_k} = \frac{{\partial f}}{{\partial \omega }}\left| {_{{{\tilde x}_{k - 1}},{u_{k - 1}}}} \right.
+\end{array}
+$$
+则$z_k$在先验估计值$\tilde {x}_k = f({{\tilde x}_{k - 1}},{u_{k - 1}},0)$处泰勒展开
+$$
+\begin{array}{l}
+{{z}_k} = h({{\tilde x}_k},0) + H({x_k} - {{\tilde x}_k}) + V{v_k}\\[2mm]
+H = \frac{{\partial h}}{{\partial x}}\left| {_{{{\tilde x}_k}}} \right.,{V_k} = \frac{{\partial h}}{{\partial v}}\left| {_{{{\tilde x}_k}}} \right.
+\end{array}
+$$
+
+##### 线性模型
+
+$$
+\begin{array}{l}
+{x_k} = {{\tilde x}_k} + A({x_k} - {{\hat x}_{k - 1}}) + {W_k}{\omega _{k - 1}},P(W\omega ) \sim N(0,WQ{W^T})\\[2mm]
+{{\rm{z}}_k} = h({{\tilde x}_k},0) + H({x_k} - {{\tilde x}_k}) + V{v_k},P(Vv)\sim N(0,VR{V^T})
+\end{array}
+$$
+
+##### 预测
+
+先验    估计：$\tilde x_k^ -  = f({{\tilde x}_{k - 1}},{u_{k - 1}},0)$
+
+先验协方差：$P_{k + 1}^ -  = A{P_k}{A^T} + WQ{W^T}, P_0 initial$
+
+##### 更新
+
+卡尔曼增益：$K = {P_k}^ - {H^T}{(H{P_k}^ - {H^T} + VR{V^T})^{ - 1}}$
+
+后验    估计：${{\tilde x}_k} = \tilde x_k^ -  + K({z_k} - h({{\tilde x}_k^-},0) )$
+
+状态    更新：${P_k} = (I - KH){P_k}^ -$
+
+
+
+
+
+
 
 
 
@@ -784,18 +1003,21 @@ $$
 
 
 
-[^01]: https://www.zhihu.com/question/23005815/answer/33971127 " 形象理解四元数"
-[^02]: https://zhuanlan.zhihu.com/p/45404840  "三维旋转：欧拉角、四元数、旋转矩阵、轴角之间的转换"
-[^03]: https://www.zhihu.com/tardis/zm/art/78987582?source_id=1005 "四元数和旋转"
-[^04]: https://blog.csdn.net/qq_21542187/article/details/143091092 "四元数更新算法"
-[^05]: https://zhuanlan.zhihu.com/p/438724546 "Mahony姿态解算算法详解"
-[^06]: https://zhuanlan.zhihu.com/p/612448123 "Mahony互补滤波算法及PI参数调节"
-[^07]: https://zhuanlan.zhihu.com/p/654496867 "陀螺仪姿态解算+Mahony滤波算法"
-[^08]: https://zhuanlan.zhihu.com/p/381313233 "为什么Mahony姿态解算中用了PID思想"
-[^08]: https://x-io.co.uk/downloads/madgwick_internal_report.pdf "Madgwick算法论文"
-[^09]: https://www.cnblogs.com/ilekoaiq/p/8849217.html "Madgwick算法详细解读 - 极品巧克力"
-[^10]: https://x-io.co.uk/open-source-imu-and-ahrs-algorithms/ "Open source IMU and AHRS algorithms – x-io Technologies"
-[^11]: https://zhuanlan.zhihu.com/p/22480177  "采样定理"
-[^12]: https://www.bilibili.com/video/BV1Nr4y1j7kn  "无伤理解欧拉角中的“万向死锁”现象"
-[^13]: https://www.bilibili.com/video/BV14t421h7M4/  "四元数如何控制物体旋转"
+[^1]: https://www.zhihu.com/question/23005815/answer/33971127 " 形象理解四元数"
+[^2]: https://zhuanlan.zhihu.com/p/45404840  "三维旋转：欧拉角、四元数、旋转矩阵、轴角之间的转换"
+[^3]: https://www.zhihu.com/tardis/zm/art/78987582?source_id=1005 "四元数和旋转"
+[^4]: https://blog.csdn.net/qq_21542187/article/details/143091092 "四元数更新算法"
+[^5]: https://zhuanlan.zhihu.com/p/438724546 "Mahony姿态解算算法详解"
+[^6]: https://zhuanlan.zhihu.com/p/612448123 "Mahony互补滤波算法及PI参数调节"
+[^7]: https://zhuanlan.zhihu.com/p/654496867 "陀螺仪姿态解算+Mahony滤波算法"
+[^8]: https://zhuanlan.zhihu.com/p/381313233 "为什么Mahony姿态解算中用了PID思想"
+[^9]: https://x-io.co.uk/downloads/madgwick_internal_report.pdf "Madgwick算法论文"
+[^10]: https://www.cnblogs.com/ilekoaiq/p/8849217.html "Madgwick算法详细解读 - 极品巧克力"
+[^11]: https://x-io.co.uk/open-source-imu-and-ahrs-algorithms/ "Open source IMU and AHRS algorithms – x-io Technologies"
+[^12]: https://zhuanlan.zhihu.com/p/48876718 "卡尔曼滤波（Kalman Filter）原理与公式推导"
+[^13]: https://zhuanlan.zhihu.com/p/22480177  "采样定理"
+[^14]: https://blog.csdn.net/weixin_43467525/article/details/130666753 "传递函数离散化方法"
+[^15]: https://zhuanlan.zhihu.com/p/422074759 "欧拉法(Euler)求解常微分方程的Matlab程序及案例"
+[^16]: https://www.bilibili.com/video/BV1Nr4y1j7kn  "无伤理解欧拉角中的“万向死锁”现象"
+[^17]: https://www.bilibili.com/video/BV14t421h7M4/  "四元数如何控制物体旋转"
 [^14]: 
